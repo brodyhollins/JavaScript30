@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+  <script>
+    const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+    const cities = [];
+
+    /*We will get a promise so we use .then and this returns a "blob"(alot) of data,
+    this data we get back from the fetch, it doesnt know what kind of data it is yet.
+    We know in this case that it is json so we can use .json() and this will return
+    another promise, this will then gives us the raw data to work with and we want 
+    to store this data in our cities array, we use the spread operator ... to push each item
+    to the array.
+    */
+    fetch(endpoint)
+      .then(blob => blob.json())
+      .then(data => cities.push(...data));
+
+    //Function to find the word in our citie array
+    function findMatches(wordToMatch, cities) {
+      //Filtering down the array to return an array that has what we searched
+      return cities.filter(place => {
+        //Figure out if the the city or state matches what was searched
+        //We create regex var to be able to pass the variable of wordToMatch into the .match
+        //'gi' g is global look through the entire string that specific one
+        //i is insensitive, so it wont be case sensitive
+        const regex = new RegExp(wordToMatch, 'gi');
+        return place.city.match(regex) || place.state.match(regex);
+      });
+    }
+    function numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    function displayMatches() {
+      //We pass this.value into findMatches as the wordToMatch
+      const matchArray = findMatches(this.value, cities);
+      const html = matchArray.map(place => {
+        //This is to make the word we searching for highlighted
+        const regex = new RegExp(this.value, 'gi');
+        const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`);
+        const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`);
+        return `
+        <li>
+          <span class="name">${cityName}, ${stateName}</span>
+          <span class="population">${numberWithCommas(place.population)}</span>
+        </li>
+        `
+      }).join('');//.join so the data is returned as an array but one string
+      suggestions.innerHTML = html;
+    }
+    //on the input field with the class of search:
+    const searchInput = document.querySelector('.search');
+    //on the ul with the class of suggestions:
+    const suggestions = document.querySelector('.suggestions');
+
+    //This will listen for when someone types in the input
+    searchInput.addEventListener('change', displayMatches);
+    //We run this aswell because the change event only fires when we click away from the input field
+    searchInput.addEventListener('keyup', displayMatches);
+  </script>
+</body>
+
+</html>
