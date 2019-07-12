@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>JS Drum Kit</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+
+  <div class="keys">
+    <div data-key="65" class="key">
+      <kbd>A</kbd>
+      <span class="sound">clap</span>
+    </div>
+    <div data-key="83" class="key">
+      <kbd>S</kbd>
+      <span class="sound">hihat</span>
+    </div>
+    <div data-key="68" class="key">
+      <kbd>D</kbd>
+      <span class="sound">kick</span>
+    </div>
+    <div data-key="70" class="key">
+      <kbd>F</kbd>
+      <span class="sound">openhat</span>
+    </div>
+    <div data-key="71" class="key">
+      <kbd>G</kbd>
+      <span class="sound">boom</span>
+    </div>
+    <div data-key="72" class="key">
+      <kbd>H</kbd>
+      <span class="sound">ride</span>
+    </div>
+    <div data-key="74" class="key">
+      <kbd>J</kbd>
+      <span class="sound">snare</span>
+    </div>
+    <div data-key="75" class="key">
+      <kbd>K</kbd>
+      <span class="sound">tom</span>
+    </div>
+    <div data-key="76" class="key">
+      <kbd>L</kbd>
+      <span class="sound">tink</span>
+    </div>
+  </div>
+
+  <audio data-key="65" src="sounds/clap.wav"></audio>
+  <audio data-key="83" src="sounds/hihat.wav"></audio>
+  <audio data-key="68" src="sounds/kick.wav"></audio>
+  <audio data-key="70" src="sounds/openhat.wav"></audio>
+  <audio data-key="71" src="sounds/boom.wav"></audio>
+  <audio data-key="72" src="sounds/ride.wav"></audio>
+  <audio data-key="74" src="sounds/snare.wav"></audio>
+  <audio data-key="75" src="sounds/tom.wav"></audio>
+  <audio data-key="76" src="sounds/tink.wav"></audio>
+
+  <script>
+    //Play the sound on keydown
+    function playSound(e) {
+      //We are finding if the key we pressed is equal to any of the audio elements that contant that key
+      const audio = document.querySelector(`audio[data-key="${e.keyCode}"]`);
+      //We are finding if the key we pressed is equal to any of the divs with the class key that contant that key
+      const key = document.querySelector(`.key[data-key="${e.keyCode}"]`);
+      if (!audio) return; //This will stop the function from running all together
+      //We have to set time to reset before we play because the .play() will not play if the audio is already playing
+      audio.currentTime = 0; //rewind to the start of the audio
+      audio.play();
+      //Add the class playing to the corresponding div that was equal to the key press
+      key.classList.add('playing');
+    };
+
+    //Function to remove the transition once the transition has ended(transitionend)
+    function removeTransition(e) {
+      if (e.propertyName !== 'transform') return;//Skip if it is not a transform
+      //this is equal to the key, because this is ALWAYS equal to whatever got called against it
+      // key.addEventListener, addEventListner got called against key
+      this.classList.remove('playing');//you could console.log to find out what this is actually equal to, to be sure
+    };
+    //We are going to listen for the keydown, which will give us an event (e)
+    window.addEventListener('keydown', playSound);
+    //We want to select every single one on the page because we want to listen for it on each key
+    const keys = document.querySelectorAll('.key');
+    //We want to listen for the transitionend event on each one and we will run the removeTransition function
+    keys.forEach(key => key.addEventListener('transitionend', removeTransition));
+  </script>
+
+
+</body>
+
+</html>
